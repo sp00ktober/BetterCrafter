@@ -12,7 +12,7 @@ namespace BetterCrafter.Patches.Dynamic
         [HarmonyPatch(typeof(ItemContainer), "TryAddItem", new System.Type[] { typeof(ItemData), typeof(int) })]
         public static bool TryAddItem_Prefix(ItemData itemData, int amount)
         {
-            if (CraftingManager.skipGiveItem > 0)
+            if (CraftingManager.skipGiveItem > 0 && !CraftingManager.lockSkipGiveItem)
             {
                 CraftingManager.skipGiveItem--;
                 return false;
