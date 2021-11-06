@@ -8,5 +8,8 @@ This is a C# Mod using Harmony and BepInEx loader, so you need that installed in
 You can then start the game with mods loaded by passing the following command line arguments:
 `--doorstop-enable true --doorstop-target BepInEx\core\BepInEx.Preloader.dll`
 
-# No precompiled version yet so you need to do it yourself if you really want to
-But note that its still uglyish code which needs more cleanup and is very likely prone to bugs. Also as the game is early access it is likely that game updates will break the mod at some point.
+Or use the modmanager to do all of that once i publich this on [Thunderstore](https://starsand.thunderstore.io/)
+
+## Demo
+Below you find a link to a short youtube video demonstrating the mod.
+[![Starsand BetterCrafter Mod Test 2](http://img.youtube.com/vi/Zl_3lcLzqec/0.jpg)](http://www.youtube.com/watch?v=Zl_3lcLzqec "Starsand BetterCrafter Mod Test 2")

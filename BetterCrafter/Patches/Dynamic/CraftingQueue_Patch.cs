@@ -29,13 +29,16 @@ namespace BetterCrafter.Patches.Dynamic
             return false;
         }
 
-        [HarmonyPostfix]
+        // decrease our internal arrays if needed (basicaly when item is crafted compeltely and successfull)
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(CraftingQueue), "StartNext")]
-        public static void StartNext_Postfix()
+        public static void StartNext_Prefix(CraftingQueue __instance)
         {
             if (!lockStartNextDecrease)
             {
                 CraftingManager.craftDependencies.RemoveAt(CraftingManager.craftDependencies.Count - 1);
+                CraftingManager.craftUsedItems.RemoveAt(CraftingManager.craftUsedItems.Count - 1);
+                CraftingManager.lastCraftedItem.Clear();
             }
         }
 
@@ -58,7 +61,9 @@ namespace BetterCrafter.Patches.Dynamic
 
             depID = CraftingManager.craftDependencies[index];
 
-            // example depID array: 0 1 0 4 3 2 1 0 1 0 (rightmost would be active item) (NOTE: invert this as dependencies for a recipe are added before the "big" recipe but they have a higher id)
+            // example depID array: 0 1 0 1 2 3 4 0 1 0 (rightmost would be active item) (NOTE: dependencies for a recipe are added before the "big" recipe but they have a higher id)
+            // also note the queue item represented by a 0 is the "last" one and should be put into players inventory.
+            // so if soem parts of the queue are removed numbers need to be adjusted
 
             // go to the left point of connected recipes. We need to delete up to index as thats all depending on the recipe at index.
             int startDelIndex = index;
@@ -67,8 +72,20 @@ namespace BetterCrafter.Patches.Dynamic
                 startDelIndex -= 1;
             }
 
-            // go until index and delete
             int delAmount = index - startDelIndex + 1; // +1 to account for index == startDelIndex
+
+            // adjust numbers to reflect note above
+            for(int i = index; i + 1 < CraftingManager.craftDependencies.Count && CraftingManager.craftDependencies[i + 1] > CraftingManager.craftDependencies[i]; i++)
+            {
+                CraftingManager.craftDependencies[i] -= delAmount;
+                // last item in list would be skipped if we do not do this
+                if (i + 2 == CraftingManager.craftDependencies.Count && CraftingManager.craftDependencies[i + 1] > CraftingManager.craftDependencies[i])
+                {
+                    CraftingManager.craftDependencies[i + 1] -= delAmount;
+                }
+            }
+
+            // go until index and delete
             CraftingManager.craftDependencies.RemoveRange(startDelIndex, delAmount);
 
             // now delete games queue thats connected to the canceled recipe
@@ -79,7 +96,7 @@ namespace BetterCrafter.Patches.Dynamic
                     lockStartNextDecrease = true;
                     CraftingManager.lockSkipGiveItem = true;
 
-                    giveBackItem(__instance.m_ActiveElement);
+                    giveBackItem(__instance.m_ActiveElement, CraftingManager.craftUsedItems.Count - 1);
 
                     CraftingManager.lockSkipGiveItem = false;
                     __instance.StartNext();
@@ -87,12 +104,12 @@ namespace BetterCrafter.Patches.Dynamic
                 }
                 else
                 {
-                    // remove delAMount - 1 because one recipe is still marked the active one
+                    // remove delAmount - 1 because one recipe is still marked the active one
                     for(int i = __instance.m_Queue.Count - delAmount + 1; i < delAmount - 1; i++)
                     {
                         CraftingManager.lockSkipGiveItem = true;
 
-                        giveBackItem(__instance.m_Queue[i]);
+                        giveBackItem(__instance.m_Queue[i], i);
 
                         CraftingManager.lockSkipGiveItem = false;
                         UnityEngine.Object.Destroy(__instance.m_Queue[i].gameObject);
@@ -102,7 +119,7 @@ namespace BetterCrafter.Patches.Dynamic
                     lockStartNextDecrease = true;
                     CraftingManager.lockSkipGiveItem = true;
 
-                    giveBackItem(__instance.m_ActiveElement);
+                    giveBackItem(__instance.m_ActiveElement, CraftingManager.craftUsedItems.Count - 1);
 
                     CraftingManager.lockSkipGiveItem = false;
                     __instance.StartNext();
@@ -115,7 +132,7 @@ namespace BetterCrafter.Patches.Dynamic
                 {
                     CraftingManager.lockSkipGiveItem = true;
 
-                    giveBackItem(__instance.m_Queue[i]);
+                    giveBackItem(__instance.m_Queue[i], i);
 
                     CraftingManager.lockSkipGiveItem = false;
                     UnityEngine.Object.Destroy(__instance.m_Queue[i].gameObject);
@@ -126,28 +143,33 @@ namespace BetterCrafter.Patches.Dynamic
             return false;
         }
 
-        private static void giveBackItem(QueueElement qe)
+        private static void giveBackItem(QueueElement qe, int index)
         {
-            // TODO:
-            /*
-             * the idea is to store all used ingridients in the method below, or probably in queueElement.Initialize(). all ingridients per recipe used.
-             * also store the amount if skipGiveItem used.
-             * then i can restore all of that here.
-             */
-            if (this.m_AmountToCraftRemained > 0)
+            // remove already crafted items from inventory and then give all ingredients back to player
+            int removed;
+            string itemName = CraftingManager.craftUsedItems[index].itemName;
+            if (CraftingManager.lastCraftedItem.ContainsKey(itemName))
             {
-                foreach (RequiredItem requiredItem in this.m_CraftData.Result.Recipe.RequiredItems)
+                CollectionUtils.RemoveItems(itemName, CraftingManager.lastCraftedItem[itemName], CraftingManager.inventory.Slots, out removed);
+                if(removed < CraftingManager.lastCraftedItem[itemName])
                 {
-                    ItemData itemData;
-                    MonoSingleton<InventoryController>.Instance.Database.FindItemByName(requiredItem.Name, out itemData);
-                    if (!this.m_Inventory.TryAddItem(itemData, requiredItem.Amount * this.m_AmountToCraftRemained))
-                    {
-                        this.m_Hotbar.TryAddItem(itemData, requiredItem.Amount * this.m_AmountToCraftRemained);
-                    }
+                    CollectionUtils.RemoveItems(itemName, CraftingManager.lastCraftedItem[itemName] - removed, CraftingManager.hotbar.Slots, out removed);
                 }
             }
 
-            CraftingManager.skipGiveItem -= qe.m_CraftData.Amount;
+            for(int j = 0; j < CraftingManager.craftUsedItems[index].Name.Count; j++)
+            {
+                ItemData iD;
+                MonoSingleton<InventoryController>.Instance.Database.FindItemByName(CraftingManager.craftUsedItems[index].Name[j], out iD);
+
+                if (!CraftingManager.inventory.TryAddItem(iD, CraftingManager.craftUsedItems[index].Amount[j]))
+                {
+                    CraftingManager.hotbar.TryAddItem(iD, CraftingManager.craftUsedItems[index].Amount[j]);
+                }
+            }
+
+            CraftingManager.craftUsedItems.RemoveAt(index);
+            //CraftingManager.skipGiveItem -= qe.m_CraftData.Amount;
         }
 
         private static bool deepCreateQueue(CraftingQueue cq, CraftData cd, int depID)
@@ -188,7 +210,12 @@ namespace BetterCrafter.Patches.Dynamic
                 queueElement.transform.SetAsFirstSibling();
                 queueElement.transform.localPosition = Vector3.zero;
                 queueElement.transform.localScale = Vector3.one;
+
+                CraftingManager.craftCatchTakeItems = true;
+                CraftingManager.craftUsedItems.Insert(0, new CraftingManager.itemData(cd.Result.Name));
                 queueElement.Initialize(cd, CraftingManager.inventory, CraftingManager.hotbar);
+                CraftingManager.craftCatchTakeItems = false;
+
                 queueElement.Cancel.AddListener(new Action<QueueElement>(cq.On_CraftingCanceled));
                 if (num == 0)
                 {
