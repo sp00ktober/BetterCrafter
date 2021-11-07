@@ -9,7 +9,7 @@ Install either [Thunderstore Mod Manager](https://www.overwolf.com/app/Thunderst
 ### Manual Installation
 You can follow the steps in the [BepInEx Docs](https://docs.bepinex.dev/articles/user_guide/installation/index.html) to setup BepInEx and then download [the release](https://github.com/sp00ktober/BetterCrafter/releases) and copy it into your plugins folder.
 
-Or use the modmanager to do all of that once i publich this on [Thunderstore](https://starsand.thunderstore.io/)
+[Starsand Mods on Thunderstore](https://starsand.thunderstore.io)
 
 ## Demo
 Below you find a link to a short youtube video demonstrating the mod.
