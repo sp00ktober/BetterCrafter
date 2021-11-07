@@ -4,12 +4,22 @@ Mod for the game "Starsand" which just came out on steam in early access.
 Automatically adds needed ingredients to the crafting queue if you have the needed items for it. No need to manually craft all smaller peaces of it anymore.
 
 ## How does it work?
-This is a C# Mod using Harmony and BepInEx loader, so you need that installed in your games root folder.
-You can then start the game with mods loaded by passing the following command line arguments:
-`--doorstop-enable true --doorstop-target BepInEx\core\BepInEx.Preloader.dll`
+### Using a Mod Manager
+Install either [Thunderstore Mod Manager](https://www.overwolf.com/app/Thunderstore-Thunderstore_Mod_Manager) or [r2modman](https://thunderstore.io/package/ebkr/r2modman/) and install the mod from there.
+### Manual Installation
+You can follow the steps in the [BepInEx Docs](https://docs.bepinex.dev/articles/user_guide/installation/index.html) to setup BepInEx and then download [the release](https://github.com/sp00ktober/BetterCrafter/releases) and copy it into your plugins folder.
 
 Or use the modmanager to do all of that once i publich this on [Thunderstore](https://starsand.thunderstore.io/)
 
 ## Demo
 Below you find a link to a short youtube video demonstrating the mod.
 [![Starsand BetterCrafter Mod Test 2](http://img.youtube.com/vi/Zl_3lcLzqec/0.jpg)](http://www.youtube.com/watch?v=Zl_3lcLzqec "Starsand BetterCrafter Mod Test 2")
+
+## Support
+For support or to discuss any other modding related topic you can join our [Starsand Modding Discord Server](https://discord.gg/wAnjcyP6)
+
+## Changelog
+
+0.0.1:
+
+- Initial release

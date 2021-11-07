@@ -1,0 +1,9 @@
+{
+  "name": "BetterCrafter",
+  "description": "BepInEx mod for Starsand to autocraft needed sub-recipes.",
+  "version_number": "0.0.1",
+  "dependencies": [
+    "BepInEx-BepInExPack_Starsand-5.4.16"
+  ],
+  "website_url": "https://github.com/sp00ktober/BetterCrafter"
+}
