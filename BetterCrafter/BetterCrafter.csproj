@@ -286,6 +286,7 @@
     <Compile Include="Managers\CraftingManager.cs" />
     <Compile Include="Patches\Dynamic\CraftingList_Patch.cs" />
     <Compile Include="Patches\Dynamic\CraftingQueue_Patch.cs" />
+    <Compile Include="Patches\Dynamic\GeneralManager_Patch.cs" />
     <Compile Include="Patches\Dynamic\ItemContainer_Patch.cs" />
     <Compile Include="Patches\Dynamic\QueueElement_Patch.cs" />
     <Compile Include="Patches\Dynamic\RecipeInspector_Patch.cs" />
