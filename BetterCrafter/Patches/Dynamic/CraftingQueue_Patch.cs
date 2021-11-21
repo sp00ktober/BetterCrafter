@@ -179,7 +179,7 @@ namespace BetterCrafter.Patches.Dynamic
             ItemContainer inventory = manager.m_Inventory;
             ItemContainer hotbar = manager.m_Hotbar;
 
-            return inventory.CanContainThisItem(itemId) || hotbar.CanContainThisItem(itemId);
+            return !(inventory.CanContainThisItem(itemId) || hotbar.CanContainThisItem(itemId));
         }
 
         private static bool deepCreateQueue(CraftingQueue cq, CraftData cd, int depID)
