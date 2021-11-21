@@ -172,8 +172,24 @@ namespace BetterCrafter.Patches.Dynamic
             //CraftingManager.skipGiveItem -= qe.m_CraftData.Amount;
         }
 
+        private static bool isInvFull(int itemId)
+        {
+            GeneralManager manager = GameObject.FindGameObjectWithTag("manager").GetComponent<GeneralManager>();
+
+            ItemContainer inventory = manager.m_Inventory;
+            ItemContainer hotbar = manager.m_Hotbar;
+
+            return inventory.CanContainThisItem(itemId) || hotbar.CanContainThisItem(itemId);
+        }
+
         private static bool deepCreateQueue(CraftingQueue cq, CraftData cd, int depID)
         {
+            if (isInvFull(cd.Result.Id) && depID == 0)
+            {
+                MonoSingleton<MessageDisplayer>.Instance.PushLocalizedMessage("INV_FULL", StringTableType.InGame, null, 0, default(Color), 16, "", false, GUI_MessageType.Default);
+                return false;
+            }
+
             foreach(RequiredItem ri in cd.Result.Recipe.RequiredItems)
             {
                 int playerHasAmount = CraftingManager.inventory.GetItemCount(ri.Name) + CraftingManager.hotbar.GetItemCount(ri.Name);
