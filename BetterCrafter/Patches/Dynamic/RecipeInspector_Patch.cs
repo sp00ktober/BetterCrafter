@@ -66,7 +66,7 @@ namespace BetterCrafter.Patches.Dynamic
 
             foreach(KeyValuePair<string, int> entry in CraftingManager.rItems)
             {
-                if(entry.Value > inventory.GetItemCount(entry.Key) + hotbar.GetItemCount(entry.Key))
+                if(entry.Value > (inventory.GetItemCount(entry.Key) + hotbar.GetItemCount(entry.Key)))
                 {
                     return false;
                 }
@@ -81,7 +81,7 @@ namespace BetterCrafter.Patches.Dynamic
         private static void deepSearchRecipeRequire(ItemData itemData, int amount, ItemContainer inventory, ItemContainer hotbar)
         {
             ItemDatabase db = MonoSingleton<InventoryController>.Instance.Database;
-            
+
             foreach(RequiredItem reqItem in itemData.Recipe.RequiredItems)
             {
                 foreach (ItemCategory category in db.Categories)
@@ -92,8 +92,6 @@ namespace BetterCrafter.Patches.Dynamic
                         {
                             int alreadyHave = inventory.GetItemCount(reqItem.Name) + hotbar.GetItemCount(reqItem.Name);
                             deepSearchRecipeRequire(iData, reqItem.Amount * amount - alreadyHave, inventory, hotbar);
-
-                            return;
                         }
                         else if(iData.Name == reqItem.Name && !iData.IsCraftable)
                         {
