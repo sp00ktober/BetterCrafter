@@ -4,6 +4,7 @@ using UltimateSurvival.GUISystem;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using BetterCrafter.Managers;
+using UnityEngine;
 
 namespace BetterCrafter.Patches.Dynamic
 {
@@ -19,7 +20,7 @@ namespace BetterCrafter.Patches.Dynamic
             ItemContainer inventory = (ItemContainer)AccessTools.Field(typeof(RecipeInspector), "m_Inventory").GetValue(__instance);
             ItemContainer hotbar = (ItemContainer)AccessTools.Field(typeof(RecipeInspector), "m_Hotbar").GetValue(__instance);
 
-            ((Button)AccessTools.Field(typeof(RecipeInspector), "craftButton").GetValue(__instance)).interactable = deepCheckRecipePossible(itemData, amount, inventory, hotbar);
+            ((Button)AccessTools.Field(typeof(RecipeInspector), "craftButton").GetValue(__instance)).interactable = deepCheckRecipePossible(itemData, amount, inventory, hotbar, __instance);
         }
 
         // start crafting if the player can craft all needed materials
@@ -33,7 +34,7 @@ namespace BetterCrafter.Patches.Dynamic
             ItemContainer inventory = (ItemContainer)AccessTools.Field(typeof(RecipeInspector), "m_Inventory").GetValue(__instance);
             ItemContainer hotbar = (ItemContainer)AccessTools.Field(typeof(RecipeInspector), "m_Hotbar").GetValue(__instance);
 
-            if(!deepCheckRecipePossible(inspectedItem, currentDesiredAmount, inventory, hotbar))
+            if(!deepCheckRecipePossible(inspectedItem, currentDesiredAmount, inventory, hotbar, __instance))
             {
                 return;
             }
@@ -58,7 +59,7 @@ namespace BetterCrafter.Patches.Dynamic
             }
         }
 
-        public static bool deepCheckRecipePossible(ItemData itemData, int amount, ItemContainer inventory, ItemContainer hotbar)
+        public static bool deepCheckRecipePossible(ItemData itemData, int amount, ItemContainer inventory, ItemContainer hotbar, RecipeInspector __instance)
         {
             CraftingManager.rItems.Clear();
 
@@ -70,10 +71,54 @@ namespace BetterCrafter.Patches.Dynamic
                 {
                     return false;
                 }
+                // __instance should only be null when comming from CraftingList_Patch which controls the color of the recipe in the crafting window which is okay if its white even tho no loom or mortar is nearby
+                if(__instance != null && !checkRecipeNeedBuilding(itemData, __instance))
+                {
+                    return false;
+                }
             }
 
             CraftingManager.inventory = inventory;
             CraftingManager.hotbar = hotbar;
+
+            return true;
+        }
+
+        public static bool checkRecipeNeedBuilding(ItemData itemData, RecipeInspector __instance)
+        {
+            // check if loom is required
+            for(int i = 0; i < itemData.PropertyValues.Count; i++)
+            {
+                if(itemData.PropertyValues[i].Name == "Loom Req")
+                {
+                    GameObject[] looms = GameObject.FindGameObjectsWithTag("Loom");
+                    foreach(GameObject l in looms)
+                    {
+                        if((__instance.m_Player.transform.position - l.transform.position).magnitude <= 5f)
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+
+            // check if mortar is required
+            for (int i = 0; i < itemData.PropertyValues.Count; i++)
+            {
+                if (itemData.PropertyValues[i].Name == "Loom Req")
+                {
+                    GameObject[] mortars = GameObject.FindGameObjectsWithTag("Mortar");
+                    foreach (GameObject m in mortars)
+                    {
+                        if ((__instance.m_Player.transform.position - m.transform.position).sqrMagnitude <= 25f)
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
 
             return true;
         }

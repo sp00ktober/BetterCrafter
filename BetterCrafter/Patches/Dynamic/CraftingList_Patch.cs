@@ -22,7 +22,7 @@ namespace BetterCrafter.Patches.Dynamic
                     flag = false;
                 }
 
-                if(flag && RecipeInspector_Patch.deepCheckRecipePossible(__instance.ItemsRecip[i], 1, inventory, hotbar))
+                if(flag && RecipeInspector_Patch.deepCheckRecipePossible(__instance.ItemsRecip[i], 1, inventory, hotbar, null))
                 {
                     __instance.recipeGenerated[i].GetComponent<Image>().color = __instance.colori[0];
                 }
