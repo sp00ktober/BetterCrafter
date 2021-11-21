@@ -20,6 +20,10 @@ For support or to discuss any other modding related topic you can join our [Star
 
 ## Changelog
 
+0.0.3:
+
+- hotfix to let player craft again with a not full inventory.
+
 0.0.2:
 
 - Fixed a bug which would let the player craft complexer recipes while only having the first ingredient.

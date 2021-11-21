@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace BetterCrafter
 {
-    [BepInPlugin("com.sp00ktober.de", "BetterCrafter", "0.0.1")]
+    [BepInPlugin("com.sp00ktober.de", "BetterCrafter", "0.0.3")]
     public class BetterCrafter: BaseUnityPlugin
     {
         private void Awake()
@@ -21,7 +21,7 @@ namespace BetterCrafter
 
             try
             {
-                Debug.Log("Applying patches from BetterCrafter 0.0.1");
+                Debug.Log("Applying patches from BetterCrafter 0.0.3");
 #if DEBUG
                 if (Directory.Exists("./mmdump"))
                 {
