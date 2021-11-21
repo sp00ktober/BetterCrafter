@@ -106,7 +106,7 @@ namespace BetterCrafter.Patches.Dynamic
             // check if mortar is required
             for (int i = 0; i < itemData.PropertyValues.Count; i++)
             {
-                if (itemData.PropertyValues[i].Name == "Loom Req")
+                if (itemData.PropertyValues[i].Name == "Mortar Req")
                 {
                     GameObject[] mortars = GameObject.FindGameObjectsWithTag("Mortar");
                     foreach (GameObject m in mortars)
