@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
 using UltimateSurvival.GUISystem;
+using UnityEngine;
 using UnityEngine.UI;
+using BepInEx.Configuration;
 
 namespace BetterCrafter.Patches.Dynamic
 {
@@ -24,7 +26,9 @@ namespace BetterCrafter.Patches.Dynamic
 
                 if(flag && RecipeInspector_Patch.deepCheckRecipePossible(__instance.ItemsRecip[i], 1, inventory, hotbar, null))
                 {
-                    __instance.recipeGenerated[i].GetComponent<Image>().color = __instance.colori[0];
+                    Color color = Color.green;
+                    ColorUtility.TryParseHtmlString(Managers.ConfigManager.ColorString.Value, out color);
+                    __instance.recipeGenerated[i].GetComponent<Image>().color = color;
                 }
             }
 
