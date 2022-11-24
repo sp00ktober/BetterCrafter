@@ -12,7 +12,16 @@ namespace BetterCrafter
     {
         private void Awake()
         {
+            InitConfig();
             InitPatches();
+        }
+
+        private void InitConfig()
+        {
+            Managers.ConfigManager.ColorString = Config.Bind("BetterCrafter.Colors",
+                                                             "ItemHighlightColor",
+                                                             "green",
+                                                             "The highlight color for available crafting items. Any HTML color should work.");
         }
 
         private static void InitPatches()
